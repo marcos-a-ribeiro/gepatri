@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+
+<h:head>
+
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.5" />
+	<meta name="description" content="Resolves a date to a day of the week" />
+	<meta name="author" content="Tsepo Maleka" />
+
+	<title>Gerenciamento de Patrimônios</title>
+
+	<link rel="stylesheet" type="text/css" href="resources/bootstrap4.4/css/bootstrap.min.css" />
+
+	<link rel="stylesheet" type="text/css" href="resources/css/util.css" />
+
+	<h:outputStylesheet library="webjars" name="font-awesome/4.7.0/css/font-awesome.min-jsf.css" />
+		
+	<script type="text/javascript" src="resources/js/util.js" />
+
+	<script type="text/javascript" src="resources/jquery3.5.1/jquery.min.js" />
+		
+	<script type="text/javascript" src="resources/popper2.4/popper.min.js" />
+	
+	<script type="text/javascript" src="resources/bootstrap4.4/js/bootstrap.min.js" />
+
+</h:head>
+<h:body>
+
+	<br />
+	
+	<div class="container ">
+		<nav role="navigation" class="navbar navbar-expand-lg navbar-light bg-light p-1 round">
+			<div class="">
+				<label class="h6" >Gerenciamento de Patrimônios</label>
+			</div>
+			
+			<div class="collapse navbar-collapse">
+			</div>
+
+			<div class="form-inline h-80%">
+			
+				<!-- PARAMETRO DE PESQUISA -->
+
+				<h:form id="form-menu" prependId="false">
+				
+					<!-- LINK PARA O CADASTRO DE MARCAS -->
+					
+					<h:commandButton class="btn btn-secondary rounded fa mr-5" action="/marca.xhtml" immediate="true"
+						disabled="#{!patrimonioForm.allowInsert()}"
+						type="submit" value="Marcas" 
+						title="Cadastro de marcas">
+					</h:commandButton>
+					
+					<!-- PARAMETRO DE PESQUISA -->
+				
+					<h:inputText id="pesquisa" class="form-control mr-sm-1 p-0 px-1" 
+						disabled="#{!patrimonioForm.allowInsert()}"
+						type="search" 
+						title="Nome ou ID do patrimonio (Em branco, todos)" value="#{patrimonioForm.pesquisa}"/>
+
+					<!-- PESQUISAR -->
+	
+					<h:commandButton class="btn btn-secondary rounded fa fa-search" 
+						onclick="if (!verificaParametroPesquisa('pesquisa')) return false"
+						disabled="#{!patrimonioForm.allowInsert()}"
+						action="#{patrimonioAction.find()}"
+						type="submit" value="&#xf002;" 
+						title="Pesquisar">
+					</h:commandButton>
+						
+					<!-- CANCELAR -->
+	
+					<h:commandButton type="submit" value="&#xf00d;" title="Cancelar" 
+						rendered="#{patrimonioForm.isNew()}"
+						class="btn btn-secondary rounded fa mr-5" action="#{patrimonioForm.cancel(0)}" >
+					</h:commandButton>
+	
+					<!-- INSERIR NOVO PATRIMONIO -->
+					
+					<h:commandButton class="btn btn-secondary rounded fa mr-5" action="#{patrimonioForm.addNew()}" 
+						disabled="#{!patrimonioForm.allowInsert()}"
+						rendered="#{!patrimonioForm.isNew()}"
+						type="submit" value="&#xf055;" 
+						title="Adicionar novo item de patrimônio">
+					</h:commandButton>
+				</h:form>
+			</div>
+		</nav>
+
+		<h:messages id="msg"/>
+
+		<div class="row justify-content-center">
+			<div class="col-sm-12 col-lg-9 px-0 justify-content-center">
+
+				<br />
+
+				<!-- HEADER DAS COLUNAS -->
+				
+				<h:panelGroup class="row" rendered="#{!patrimonioForm.isListaEmpty() || patrimonioForm.isNew()}">
+					<div class="col-lg-10 px-2" >
+						<div class="row text-primary">
+							<div class="col-lg-1 px-0" ><small>	Id			</small></div>
+							<div class="col-lg-3 px-1" ><small>	Nome		</small></div>
+							<div class="col-lg-4 px-0" ><small>	Descrição	</small></div>
+							<div class="col-lg-3 px-1" ><small>	Marca		</small></div>
+							<div class="col-lg-1 px-0" ><small>	Tombo		</small></div>
+						</div>
+					</div>									
+				</h:panelGroup>
+ 	
+				<!-- PERCORRE A LISTA RETORNADA PELA PESQUISA E MONTA 
+					UMA LINHA PARA CADA ITEM COM COMANDOS DE EDIÇÃO E REMOÇÃO -->
+
+				<c:forEach var="patrimonio" items="#{patrimonioForm.patrimoniosDTO}" varStatus="status" >
+					<div class="row" >
+						<h:form class="col-lg-11 px-2" id="form-fields#{status.index}" prependId="false">
+							<div class="row">
+								<div class="col-lg-11">
+									<div class="row">
+									
+										<!-- ID -->
+										
+										<div class="col-lg-1 px-0 #{status.even?'text-secondary':'text-primary'}">
+											#{patrimonioForm.isNew() ? "(auto)" : patrimonio.id} </div>
+										
+										<!-- NOME PATRIMONIO -->
+										
+										<div class="col-lg-3 text-primary px-1">
+											<h:inputText
+												disabled="#{!(patrimonioForm.isEditing(status.index) or patrimonioForm.isNew())}" 
+											 	a:autofocus="true" 
+												class="w-100 px-1 rounded border border-primary #{status.even?'text-secondary':'text-primary'}"
+												autocomplete="off" maxlength="50" value="#{patrimonio.nome}" />
+										</div>
+			
+										<!-- DESCRIÃO PATRIMONIO -->
+			
+										<div class="col-lg-4 text-primary px-0">
+											<h:inputText
+												disabled="#{!(patrimonioForm.isEditing(status.index) or patrimonioForm.isNew())}"
+												class="w-100 px-1 rounded border border-primary #{status.even?'text-secondary':'text-primary'}"
+												autocomplete="off" maxlength="50" value="#{patrimonio.descricao}" />
+										</div>
+										
+										<!-- MARCA -->
+			
+										<div class="col-lg-3 text-primary px-1">
+											<h:selectOneMenu value="#{patrimonio.marcaId}" 
+												disabled="#{!(patrimonioForm.isEditing(status.index) or patrimonioForm.isNew())}"
+												class="w-100 px-1 pb-1 rounded border border-primary #{status.even?'text-secondary':'text-primary'}">
+												<f:selectItem noSelectionOption="Marca"></f:selectItem>
+									   			<f:selectItems value="#{patrimonioForm.marcasDTO}" var="c"
+									   				itemLabel="#{c.nome}" itemValue="#{c.id}" />
+									   		</h:selectOneMenu>									
+			
+										</div>
+			
+										<!-- NUMERO TOMBO -->
+			
+										<div class="col-lg-1 px-0 #{status.even?'text-secondary':'text-primary'}">
+											#{patrimonioForm.isNew() ? "(auto)" : patrimonio.numeroTombo}</div>
+									</div>
+								</div>
+								
+								<div class="col-lg-1 px-0" >
+									<div class="row">
+									
+										<!-- * EDITAR * -->
+										
+										<h:panelGroup class="col-lg-6 px-1 "
+											rendered = "#{!(patrimonioForm.isEditing(status.index) or patrimonioForm.isNew())}">
+											<h:commandButton value="&#xf040;" 
+												title="#{patrimonioForm.isDeleted(status.index) ? 'Item excluído!' : 'Editar'}"
+												disabled="#{patrimonioForm.isDeleted(status.index)}"
+												class="btn btn-light fa fa-pencil" >
+												<f:ajax event="click"
+													execute="form-fields#{status.index}"
+													render="form-fields#{status.index} form-menu form-upload#{status.index} msg"
+													listener="#{patrimonioForm.edit(status.index)}" />
+											</h:commandButton>
+										</h:panelGroup>
+			
+										<!-- * CANCELAR EDIÇÃO OU INSERÇÃO * -->
+										
+										<h:panelGroup class="col-lg-6 px-1 text-secondary" rendered = "#{patrimonioForm.isEditing(status.index)}">
+											<h:commandButton value="&#xf0e2;"  title="Cancelar ***"
+												class="btn btn-light fa fa-undo" >
+												<f:ajax event="click"
+													render="form-fields#{status.index} form-menu form-upload#{status.index} msg"
+													listener="#{patrimonioForm.cancel(status.index)}" />
+											</h:commandButton>
+										</h:panelGroup>
+										
+										<!-- * SALVAR * -->
+										
+										<h:panelGroup class="col-lg-6 px-0 text-secondary" 
+											rendered = "#{patrimonioForm.isEditing(status.index) or patrimonioForm.isNew()}">
+											<h:commandButton value="&#xf0c7;"  title="Salvar" type="submit"
+												class="btn btn-light fa fa-save" >
+												<f:ajax event="click"
+													execute=":form-fields#{status.index}"
+													render="form-fields#{status.index} form-menu form-upload#{status.index}"
+													listener="#{patrimonioAction.insertOrUpdate(status.index)}" />
+											</h:commandButton>
+										</h:panelGroup>
+										
+										<!-- * EXCLUIR * -->
+			
+										<h:panelGroup class="col-lg-6 px-0 " 
+											rendered = "#{!(patrimonioForm.isEditing(status.index) or patrimonioForm.isNew())}" >
+											<h:commandButton type="submit"
+												disabled="#{patrimonioForm.isDeleted(status.index)}"
+												onclick="if (! confirm('Confirma excluir #{patrimonio.nome}?')) return false"
+												value="&#xf00d;" title="#{patrimonioForm.isDeleted(status.index) ? 'Item excluído!' : 'Excluir'}"
+												class="#{patrimonioForm.isDeleted(status.index) ? 'btn btn-light fa fa-remove' : 'btn text-danger btn-light fa fa-remove'}">
+												
+												<f:ajax event="click"
+													execute="@this" render="form-fields#{status.index} form-upload#{status.index} msg"
+													listener="#{patrimonioAction.delete(status.index)}" />
+											</h:commandButton>
+										</h:panelGroup>
+									</div>
+									
+								</div>
+								
+							</div>
+							
+						</h:form>									
+						
+						<!-- UPLOAD IMAGE -->
+						
+						<h:form class="col-lg-1" id="form-upload#{status.index}" enctype="multipart/form-data" >
+							<div class="row">
+								<div class="col-lg-6 px-2">
+									<h:outputLabel for="imagem#{status.index}" value="&#xf093;"
+										disabled="#{patrimonioForm.isDeleted(status.index) or !patrimonioForm.isEditing(status.index)}"
+										class="btn btn-primary fa mr-2" 
+										title="#{!patrimonioForm.isEditing(status.index) ? 'Clique em editar' : 'Carregar imagem jpeg'}" />
+																		
+									<h:inputFile id ="imagem#{status.index}" value="#{uploadImagem.partFile}"
+										disabled="#{patrimonioForm.isDeleted(status.index) or !patrimonioForm.isEditing(status.index)}"
+										required="true" requiredMessage="Informe o nome do arquivo!"
+										accept="image/jpeg" />
+										
+								</div>
+								<div class="col-lg-6">
+									<h:commandButton class="btn btn-light fa fa-check" value="&#xf00c;" 
+										disabled="#{patrimonioForm.isDeleted(status.index) or !patrimonioForm.isEditing(status.index)}"
+										action="#{uploadImagem.uploadFile(status.index)}" 
+										title="#{!patrimonioForm.isEditing(status.index) ? 'Clique em editar' : 'Upload'}">
+											<f:ajax></f:ajax>
+										</h:commandButton>
+										
+								</div>
+							</div>
+						</h:form>
+														
+					</div>
+						
+				</c:forEach>
+				
+				<br />
+
+				<!-- PAGINAÇÃO -->
+				
+				<h:panelGroup rendered = "#{patrimonioForm.totalPages() gt 1}">
+					<div id="form-paginacao" class="row" >
+						<div class="col-lg-4"></div>
+						<div class="col-lg-6">
+						
+							<!-- IR PARA PAGINA ANTERIOR -->
+							
+							<h:commandButton type="submit" value="&#xf060;" title="Anterior"
+								disabled="#{patrimonioForm.page.isFirst()}"
+								class="page-item fa fa-arrow-left" 
+								actionListener="#{patrimonioForm.page.previousOrFirstPageable()}" />
+							
+							<!-- INFORMAÇÕES SOBRE A PÁTINA ATUAL -->
+							
+							<h:outputLabel value="#{patrimonioForm.pageInfo}" 
+								styleClass="page-item active w-50 text-center"  title="Página atual" />
+							
+							<!-- IR PARA PÁGINA  SEGUINTE -->
+							
+							<h:commandButton type="submit" value="&#xf061;" title="Próximo"
+								disabled="#{patrimonioForm.page.isLast()}"
+								class="page-item fa fa-arrow-right" 
+								actionListener="#{patrimonioForm.page.nextOrLastPageable()}" />
+						</div>
+						<div class="col-lg-2"></div>
+					</div>
+				</h:panelGroup>
+				
+ 			</div>
+		</div>
+	</div>
+
+ 
+</h:body>
+ 
+</html>

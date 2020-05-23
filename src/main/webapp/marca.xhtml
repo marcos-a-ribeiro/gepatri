@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+
+<h:head>
+
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.5" />
+	<meta name="description" content="Resolves a date to a day of the week" />
+	<meta name="author" content="Tsepo Maleka" />
+
+	<title>Gerenciamento de Patrimônios</title>
+
+	<link rel="stylesheet" type="text/css" href="resources/bootstrap4.4/css/bootstrap.min.css" />
+
+	<h:outputStylesheet library="webjars" name="font-awesome/4.7.0/css/font-awesome.min-jsf.css" />
+		
+	<script type="text/javascript" src="resources/js/util.js" />
+
+	<script type="text/javascript" src="resources/jquery3.5.1/jquery.min.js" />
+		
+	<script type="text/javascript" src="resources/popper2.4/popper.min.js" />
+	
+	<script type="text/javascript" src="resources/bootstrap4.4/js/bootstrap.min.js" />
+
+</h:head>
+<h:body>
+
+	<br />
+
+	<div class="container ">
+
+		<nav role="navigation" class="navbar navbar-expand-lg navbar-light bg-light p-1 round">
+			<div class="">
+				<label class="h6" >Gerenciamento de Patrimônios - Marcas</label>
+			</div>
+			
+			<div class="collapse navbar-collapse">
+			</div>
+
+			<h:form class="form-inline h-80%">
+			
+				<!-- LINK PARA O CADASTRO DE PATRIMÔNIOS -->
+				
+				<h:commandButton class="btn btn-secondary rounded fa mr-5" action="/index.xhtml" immediate="true"
+					disabled="#{!marcaForm.allowInsert()}"
+					type="submit" value="Patrimonio" 
+					title="Cadastro de patrimonio">
+				</h:commandButton>
+				
+				<!-- PARAMETRO DE PESQUISA -->
+			
+				<h:inputText id="pesquisa" class="form-control mr-sm-2 p-0 px-1" 
+					disabled="#{!marcaForm.allowInsert()}"
+					type="search" 
+					title="Nome ou ID da marca (Em branco, todos)" value="#{marcaForm.pesquisa}"/>
+
+				<!-- PESQUISAR -->
+				
+				<h:commandButton class="btn btn-secondary rounded fa fa-search mr-1" 
+					onclick="if (!verificaParametroPesquisa('pesquisa')) return false"
+					disabled="#{!marcaForm.allowInsert()}"
+					action="#{marcaAction.find()}"
+					type="submit" value="&#xf002;" 
+					title="Localizar"/>
+
+				<!-- CANCELAR -->
+
+				<h:commandButton type="submit" value="&#xf00d;" title="Cancelar" 
+					rendered="#{marcaForm.isNew()}"
+					class="btn btn-secondary rounded fa mr-5" action="#{marcaForm.cancel(0)}" >
+				</h:commandButton>
+	
+				<!-- INSERIR NOVA MARCA -->
+					
+				<h:commandButton class="btn btn-secondary rounded fa mr-5" action="#{marcaForm.addNew()}" 
+					disabled="#{!marcaForm.allowInsert()}"
+					rendered="#{!marcaForm.isNew()}"
+					type="submit" value="&#xf055;" 
+					title="Adicionar uma nova marca"/>
+			</h:form>
+		</nav>
+		
+		<h:messages id="msg"/>
+
+		<div class="row justify-content-center">
+			<div class="col-sm-10 col-lg-6 justify-content-center">
+
+				<h:form id="marca">
+
+					<br />
+					
+					<!-- HEADER DAS COLUNAS -->
+					
+					<h:panelGroup rendered="#{!marcaForm.isListaEmpty() || marcaForm.isNew()}">
+						<div class="row text-primary">
+							<div class="col-lg-1 font-weight-bold"><small>Id</small></div>
+							<div class="col-lg-8 font-weight-bold"><small>Nome da marca</small></div>
+							<div class="col-lg-1 font-weight-bold"></div>
+							<div class="col-lg-1 font-weight-bold"></div>
+						</div>
+					</h:panelGroup>
+
+					<!-- PERCORRE A LISTA RETORNADA PELA PESQUISA E MONTA 
+						UMA LINHA PARA CADA ITEM COM COMANDOS DE EDIÇÃO E REMOÇÃO -->
+					
+ 					<ui:repeat var="marca" value="#{marcaForm.marcasDTO}" varStatus="status">					
+						<div class="row">
+						
+							<!-- ID -->
+			
+							<div class="col-lg-1 #{status.even?'text-secondary':'text-primary'}">
+								#{marcaForm.isNew() ? "(auto)" : marca.id}</div>
+							
+							<!-- NOME -->
+
+							<div class="col-lg-9 text-primary">
+								<h:inputText styleClass="form-control" 
+									a:autofocus="true" 
+									disabled="#{!(marcaForm.isEditing(status.index) or marcaForm.isNew())}" 
+									class="#{status.even?'text-secondary':'text-primary'} w-100 px-1 rounded border border-primary"
+									autocomplete="off" maxlength="50" value="#{marca.nome}" />
+							</div>
+
+							<!-- * EDITAR * -->
+
+							<h:panelGroup rendered = "#{!(marcaForm.isEditing(status.index) or marcaForm.isNew())}">
+							<div class="col-lg-1 ">
+								<h:commandButton type="submit" value="&#xf040;" 
+								title="#{marcaForm.isDeleted(status.index) ? 'Item excluído!' : 'Editar'}" 
+								disabled="#{marcaForm.isDeleted(status.index)}"	render="msg"
+								class="btn btn-light fa fa-pencil" action="#{marcaForm.edit(status.index)}" />
+							</div>
+							</h:panelGroup>
+							
+							<!-- * CANCELAR EDIÇÃO OU INSERÇÃO * -->
+										
+							<h:panelGroup rendered = "#{(marcaForm.isEditing(status.index) or marcaForm.isNew())}">
+							<div class="col-lg-1 text-secondary" >
+								<h:commandButton type="submit" value="&#xf0e2;"  title="Cancelar" 
+								class="btn btn-light fa fa-undo" action="#{marcaForm.cancel(status.index)}" />
+							</div>
+							</h:panelGroup>
+
+							<!-- * SALVAR * -->
+							
+							<h:panelGroup rendered = "#{(marcaForm.isEditing(status.index) or marcaForm.isNew())}">
+							<div class="col-lg-1 text-secondary">
+								<h:commandButton type="submit" value="&#xf0c7;" title="Excluir" 
+								class="btn btn-light fa fa-save" action="#{marcaAction.insertOrUpdate(status.index)}" />
+							</div>
+							</h:panelGroup>
+
+							<!-- * EXCLUIR * -->
+			
+							<h:panelGroup rendered = "#{!(marcaForm.isEditing(status.index) or marcaForm.isNew())}">
+							<div class="col-lg-1 ">
+								<h:commandButton onclick="if (! confirm('Confirma excluir #{marca.nome}?')) return false"
+								disabled="#{marcaForm.isDeleted(status.index)}"
+								type="submit" value="&#xf00d;"
+ 								title="#{marcaForm.isDeleted(status.index) ? 'Item excluído!' : 'Excluir'}" 
+								class="btn text-danger btn-light fa fa-remove" actionListener="#{marcaAction.delete(status.index)}" />
+							</div>
+							</h:panelGroup>
+
+ 						</div>
+
+					</ui:repeat>
+					
+					<br />
+
+					<!-- PAGINAÇÃO -->
+					
+					<h:panelGroup rendered = "#{marcaForm.totalPages() gt 1}">
+						<div class="row">
+							<div class="col-lg-3"></div>
+							<div class="col-lg-6">
+								<h:commandButton type="submit" value="&#xf060;" title="Anterior"
+									disabled="#{marcaForm.page.isFirst()}"
+									class="page-item fa fa-arrow-left" actionListener="#{marcaForm.page.previousOrFirstPageable()}" />
+								
+								<h:outputLabel value="#{marcaForm.pageInfo}" 
+									styleClass="page-item active w-50 text-center"  title="Página atual" />
+								
+								<h:commandButton type="submit" value="&#xf061;" title="Próximo"
+									disabled="#{marcaForm.page.isLast()}"
+									class="page-item fa fa-arrow-right" actionListener="#{marcaForm.page.nextOrLastPageable()}" />
+							</div>
+							<div class="col-lg-3"></div>
+						</div>
+					</h:panelGroup>
+					
+				</h:form>
+			</div>
+		</div>
+	</div>
+
+</h:body>
+
+</html>
