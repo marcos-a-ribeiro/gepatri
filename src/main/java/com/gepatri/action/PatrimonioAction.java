@@ -103,15 +103,27 @@ public class PatrimonioAction {
 	// INSERE NO BD O NOVO ITEM
 	
 	public void insert() {
-		patrimonioForm.setPatrimonioDTO(0, patrimonioService.insert(patrimonioForm.getPatrimonioDTO(0)));
-		patrimonioForm.refreshStatus();
+		try {
+			patrimonioForm.setPatrimonioDTO(0, patrimonioService.insert(patrimonioForm.getPatrimonioDTO(0)));
+			patrimonioForm.refreshStatus();
+			
+	    } catch (Exception e) {
+	    	patrimonioForm.addMessage(e.getMessage());
+	    	
+	    }
 	}
 	
 	// ATUALIZA NO BD O ITEM EDITADO
 
 	public void update(Integer index) {
-		patrimonioService.update( patrimonioForm.getPatrimonioDTO(index) );
-		patrimonioForm.refreshStatus();
+		try {
+			patrimonioService.update( patrimonioForm.getPatrimonioDTO(index) );
+			patrimonioForm.refreshStatus();
+			
+	    } catch (Exception e) {
+	    	patrimonioForm.addMessage(e.getMessage());
+	    	
+	    }
 	}
 	
 	// DELETA NO BD E MARCA O ITEM COMO EXCLUÍDO (IMPEDE QUE UMA NOVA TENTATIVA DE REMOÇÃO, OU EDIÇÃO, SEJA FEITA)
@@ -126,7 +138,7 @@ public class PatrimonioAction {
 			patrimonioForm.setDeleted(index);
 	        
 	    } catch (Exception e) {
-	    	patrimonioForm.addMessage("Ocorreu um erro ao tentar excluir: " + e.getMessage());
+	    	patrimonioForm.addMessage(e.getMessage());
 	    	
 	    }
 		

@@ -156,10 +156,10 @@ public class MarcaForm {
 
 	// SE A LISTA ESTÁ VAZIA
 	public Boolean isListaEmpty() {
-		if (page == null || page.getContent() == null) {
+		if (marcasDTO == null || marcasDTO.isEmpty()) {
 			return true;
 		}
-		return page.getContent().isEmpty();
+		return marcasDTO.isEmpty();
 	}
 	
 	// SE UM NOVO ITEM ESTÁ SENDO INSERIDO

@@ -100,18 +100,26 @@ public class MarcaAction {
 	
 	public void insert() {
 		
-		MarcaDTO marcaDTONew = marcaForm.getMarcaDTO(0);
-		marcaDTONew = marcaService.insert(marcaDTONew);
-		marcaForm.getMarcasDTO().set(0, marcaDTONew);
-		marcaForm.refreshStatus();
+		try {
+			MarcaDTO marcaDTONew = marcaForm.getMarcaDTO(0);
+			marcaDTONew = marcaService.insert(marcaDTONew);
+			marcaForm.getMarcasDTO().set(0, marcaDTONew);
+			marcaForm.refreshStatus();
+		} catch (Exception e) {
+			marcaForm.addMessage(e.getMessage());
+		}
 	}
 	
 	// ATUALIZA NO BD O ITEM EDITADO
 
 	public void update(Integer index) {
-		MarcaDTO marcaDTO = marcaForm.getMarcaDTO(index);
-		marcaService.update( marcaDTO );
-		marcaForm.refreshStatus();
+		try {
+			MarcaDTO marcaDTO = marcaForm.getMarcaDTO(index);
+			marcaService.update( marcaDTO );
+			marcaForm.refreshStatus();
+		} catch (Exception e) {
+			marcaForm.addMessage(e.getMessage());
+		}
 	}
 	
 	// DELETA NO BD E MARCA O ITEM COMO EXCLUÍDO (IMPEDE QUE UMA NOVA TENTATIVA DE REMOÇÃO, OU EDIÇÃO, SEJA FEITA)

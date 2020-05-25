@@ -208,7 +208,7 @@
 												class="btn btn-light fa fa-save" >
 												<f:ajax event="click"
 													execute=":form-fields#{status.index}"
-													render="form-fields#{status.index} form-menu form-upload#{status.index}"
+													render="form-fields#{status.index} form-menu form-upload#{status.index} msg"
 													listener="#{patrimonioAction.insertOrUpdate(status.index)}" />
 											</h:commandButton>
 										</h:panelGroup>
